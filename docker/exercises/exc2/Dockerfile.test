@@ -1,0 +1,30 @@
+# Build stage
+FROM gcc:latest AS build
+
+WORKDIR /app
+
+COPY pi_montecarlo.cpp .
+
+RUN g++ -std=c++17 -O2 -o pi pi_montecarlo.cpp
+
+# Test stage
+FROM debian:stable-slim AS test
+
+WORKDIR /app
+
+COPY --from=build /app/pi .
+
+# run with 1000 iterations and check: 2.5 < pi < 4.0
+RUN ./pi 1000 > output.txt && \
+    value=$(grep "Estimated π:" output.txt | awk '{print $3}') && \
+    echo "Pi estimate: $value" && \
+    awk -v v="$value" 'BEGIN { if (v > 2.5 && v < 4.0) exit 0; else exit 1 }'
+
+# Final runtime stage
+FROM debian:stable-slim
+
+WORKDIR /app
+
+COPY --from=build /app/pi .
+
+CMD ["./pi", "10000000"]

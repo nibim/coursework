@@ -1,0 +1,20 @@
+# Build stage
+FROM gcc:latest AS build 
+
+WORKDIR /app
+
+COPY pi_montecarlo.cpp .
+
+RUN g++ -std=c++17 -O2 -o pi pi_montecarlo.cpp
+
+# Runtime stage
+FROM debian:stable-slim
+#Start a new, clean, tiny image with no compiler inside it. This keeps your final image small.
+
+
+WORKDIR /app
+
+COPY --from=build /app/pi .
+#Result: Only the binary goes into the final image — not the compiler or source code.
+
+CMD ["./pi", "10000000"]
