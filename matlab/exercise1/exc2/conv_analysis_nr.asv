@@ -1,0 +1,14 @@
+clc, clearvars;
+% 4.2 Convergence Analysis of Newton-Raphson
+m = 1000;
+
+n = 1 / (1 - 10^(-15/m));         % n from part (a)
+
+x = 1;                            % initial guess x0
+x_hist = zeros(m,1);
+
+for k = 1:m
+    % Newton-Raphson for f(x) = x^n
+    x = x - x^n/(n*x^(n-1));      % equivalent to x = x*(n-1)/n;
+    x_hist(k) = x;
+end
